@@ -47,3 +47,25 @@ func (u *User) Authenticate() error {
 	}
 	return nil
 }
+
+func (u User) Profile() (User, error) {
+	query := `SELECT email FROM users WHERE id = ?`
+	row := db.DB.QueryRow(query, u.ID)
+	err := row.Scan(&u.Email)
+	if err != nil {
+		return User{}, err
+	}
+	return u, nil
+}
+
+// Delete account
+func (u User) Delete() error {
+	query := `DELETE FROM users WHERE id = ?`
+	stmt, err := db.DB.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(u.ID)
+	return err
+}

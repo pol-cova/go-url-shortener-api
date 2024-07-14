@@ -48,3 +48,36 @@ func Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{"token": token, "message": "login successful"})
 
 }
+
+func Home(c echo.Context) error {
+	userId := c.Get("userId")
+	id := userId.(int64)
+	var urls []models.UrlModel
+	urls, err := models.GetAllUrlsByUser(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error(), "message": "could not get urls"})
+	}
+	return c.JSON(http.StatusOK, urls)
+}
+
+func Profile(c echo.Context) error {
+	userId := c.Get("userId")
+	id := userId.(int64)
+	user := models.User{ID: id}
+	user, err := user.Profile()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error(), "message": "could not get profile"})
+	}
+	return c.JSON(http.StatusOK, user)
+}
+
+func DeleteAccount(c echo.Context) error {
+	userId := c.Get("userId")
+	id := userId.(int64)
+	user := models.User{ID: id}
+	err := user.Delete()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error(), "message": "could not delete account"})
+	}
+	return c.JSON(http.StatusOK, map[string]string{"message": "account deleted"})
+}
