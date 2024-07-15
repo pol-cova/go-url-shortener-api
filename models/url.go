@@ -80,13 +80,13 @@ func UpdateClicks(key string) error {
 
 func GetAllUrlsByUser(userId int64) ([]UrlModel, error) {
 	var urls []UrlModel
-	rows, err := db.DB.Query("SELECT id, url, key, created_at, clicks FROM urls WHERE user_id = ?", userId)
+	rows, err := db.DB.Query("SELECT id, url, key, created_at, clicks, user_id FROM urls WHERE user_id = ?", userId)
 	if err != nil {
 		return nil, err
 	}
 	for rows.Next() {
 		var u UrlModel
-		err = rows.Scan(&u.ID, &u.Url, &u.Key, &u.CreatedAt, &u.Clicks)
+		err = rows.Scan(&u.ID, &u.Url, &u.Key, &u.CreatedAt, &u.Clicks, &u.UserID)
 		if err != nil {
 			return nil, err
 		}

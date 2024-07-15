@@ -11,7 +11,7 @@ func Router(app *echo.Echo) {
 	auth := app.Group("/auth")
 	auth.POST("/signup", handlers.Signup)
 	auth.POST("/login", handlers.Login)
-
+	auth.GET("/logout", handlers.Logout)
 	// Url routes
 	app.POST("/short", handlers.ShortUrl)
 	app.GET("/:key", handlers.RedirectUrl)
@@ -19,7 +19,9 @@ func Router(app *echo.Echo) {
 	// User routes
 	user := app.Group("/user")
 	user.Use(middlewares.AuthMiddleware)
+	user.POST("/short", handlers.ShortUrl)
 	user.GET("/home", handlers.Home)
 	user.GET("/me", handlers.Profile)
-	user.GET("/delete", handlers.DeleteAccount)
+
+	user.DELETE("/delete", handlers.DeleteAccount)
 }

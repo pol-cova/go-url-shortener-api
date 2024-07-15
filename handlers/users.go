@@ -50,12 +50,17 @@ func Login(c echo.Context) error {
 }
 
 func Home(c echo.Context) error {
-	userId := c.Get("userId")
-	id := userId.(int64)
-	var urls []models.UrlModel
-	urls, err := models.GetAllUrlsByUser(id)
+	userId, ok := c.Get("userId").(int64)
+	if !ok || userId == 0 {
+		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "unauthorized", "message": "User ID is missing or invalid"})
+	}
+
+	urls, err := models.GetAllUrlsByUser(userId)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error(), "message": "could not get urls"})
+	}
+	if len(urls) == 0 {
+		return c.JSON(http.StatusOK, map[string]string{"message": "no urls found"})
 	}
 	return c.JSON(http.StatusOK, urls)
 }
@@ -68,7 +73,7 @@ func Profile(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error(), "message": "could not get profile"})
 	}
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, map[string]string{"email": user.Email})
 }
 
 func DeleteAccount(c echo.Context) error {
@@ -80,4 +85,13 @@ func DeleteAccount(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error(), "message": "could not delete account"})
 	}
 	return c.JSON(http.StatusOK, map[string]string{"message": "account deleted"})
+}
+
+func Logout(c echo.Context) error {
+	token := c.Request().Header.Get("Authorization")
+	err := utils.LogoutToken(token)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error(), "message": "could not logout"})
+	}
+	return c.JSON(http.StatusOK, map[string]string{"message": "logout successful"})
 }
