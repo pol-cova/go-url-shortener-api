@@ -1,4 +1,4 @@
-```markdown
+
 # Go URL Shortener API Documentation
 
 ## Overview
